@@ -1,0 +1,13 @@
+{
+  "relativeTime": {
+    "past": {
+      "seconds": "{{count}} 초 전",
+      "minutes": "{{count}} 분 전",
+      "hours": "{{ count }} 시간 전",
+      "days": "{{count}} 일 전",
+      "weeks": "{{count}} 주 전",
+      "months": "{{count}} 월 전",
+      "years": "{{count}} 년 전"
+    }
+  }
+}

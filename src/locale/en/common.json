@@ -1,0 +1,13 @@
+{
+  "relativeTime": {
+    "past": {
+      "seconds": "{{count}} seconds ago",
+      "minutes": "{{count}} minutes ago",
+      "hours": "{{ count }} hours ago",
+      "days": "{{count}} days ago",
+      "weeks": "{{count}} weeks ago",
+      "months": "{{count}} months ago",
+      "years": "{{count}} years ago"
+    }
+  }
+}
