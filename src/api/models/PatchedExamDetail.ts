@@ -5,6 +5,7 @@
 export type PatchedExamDetail = {
   readonly id?: number;
   readonly link?: string | null;
+  readonly request_user_sit_id?: number;
   readonly created?: string;
   readonly modified?: string;
   name?: string;
@@ -12,7 +13,8 @@ export type PatchedExamDetail = {
   selection_option_data?: any;
   time_limit_seconds?: number | null;
   cutoff?: number | null;
-  is_test?: boolean;
+  verification_required?: boolean;
+  is_public?: boolean;
   pool?: number;
 };
 

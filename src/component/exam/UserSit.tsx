@@ -1,5 +1,6 @@
-import { reverse, sitDetailPath } from '@/App';
+import { reverse, SitPath } from '@/App';
 import { ExamService, PaginatedSitList, Sit } from '@/api';
+import { homeUserState } from '@/component/layout/layout';
 import { formatRelativeTime } from '@/helper/util';
 import { Pagination, PaginationItem, TableHead } from '@mui/material';
 import Paper from '@mui/material/Paper';
@@ -9,23 +10,27 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import { Box } from '@mui/system';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import useSWRImmutable from 'swr/immutable';
+import { sitEndpoint } from './exam';
 
 /**
  *
- * SitList
+ * UserSit
  *
  */
 
-const SitList = () => {
+const UserSit = () => {
   const { t } = useTranslation('exam');
   const navigate = useNavigate();
-  const { username } = useParams() as { username: string };
+
+  const homeUser = useAtomValue(homeUserState);
+  const username = homeUser?.username;
 
   // Params will replace in the list loop
-  const detailPath = reverse(sitDetailPath);
+  const detailPath = reverse(SitPath);
 
   // pagination
   const location = useLocation();
@@ -33,7 +38,7 @@ const SitList = () => {
   const page = parseInt(query.get('page') || '1', 10);
 
   // fetch data
-  const { data } = useSWRImmutable<PaginatedSitList>(`sitlist:${page}`, async () => {
+  const { data } = useSWRImmutable<PaginatedSitList>(`${sitEndpoint}?${username}:${page}`, async () => {
     return await ExamService.examSitList({ page, userUsername: username });
   });
 
@@ -64,9 +69,7 @@ const SitList = () => {
                     key={row.id}
                     sx={{ '&:hover': { backgroundColor: 'action.hover', cursor: 'pointer' } }}
                   >
-                    <TableCell align="center">
-                      {(data.count as number) - (page - 1) * (data.page_size as number) - i}
-                    </TableCell>
+                    <TableCell align="center">{(data.count as number) - (page - 1) * (data.page_size as number) - i}</TableCell>
                     <TableCell>{row.exam}</TableCell>
                     <TableCell align="center">{row.selected_questions}</TableCell>
                     <TableCell align="center">{formatRelativeTime(row.created, t)}</TableCell>
@@ -79,11 +82,7 @@ const SitList = () => {
           page={page}
           count={data.page_count}
           renderItem={(item) => (
-            <PaginationItem
-              component={Link}
-              to={`${item.page === 1 ? '' : `?page=${item.page}`}`}
-              {...item}
-            />
+            <PaginationItem component={Link} to={`${item.page === 1 ? '' : `?page=${item.page}`}`} {...item} />
           )}
           sx={{ p: 1.5, display: 'flex', justifyContent: 'center' }}
         />
@@ -92,4 +91,4 @@ const SitList = () => {
   );
 };
 
-export default SitList;
+export default UserSit;

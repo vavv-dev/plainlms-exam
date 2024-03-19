@@ -8,24 +8,22 @@ import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { loginPath, logoutPath } from '@/App';
-
-// depends to account app
-import { processingState, userState } from '@/component/account/account';
+import { loginPath, logoutPath, profilePath } from '@/App';
+import { accountProcessingState, userState } from './account';
 
 export default function LoginButton() {
   const { t } = useTranslation('layout');
   const user = useAtomValue(userState);
-  const processing = useAtomValue(processingState);
+  const processing = useAtomValue(accountProcessingState);
 
   // get from route table
-  const dropdowItems = [...routeMatches(`/${logoutPath}`)];
+  const dropdowItems = [...routeMatches(profilePath), ...routeMatches(logoutPath)];
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const open = Boolean(anchorEl);
 
   if (processing) {
-    return <CircularProgress sx={{ size: '2rem' }} />;
+    return <CircularProgress sx={{ height: '32px !important', width: '32px !important' }} />;
   }
 
   return (
@@ -57,12 +55,8 @@ export default function LoginButton() {
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
           >
             {dropdowItems.map(({ pathname, title, Icon }) => (
-              <ListItemButton key={pathname} component={Link} to={pathname}>
-                {Icon && (
-                  <Icon
-                    sx={{ minWidth: 0, mr: 3, justifyContent: 'center', width: 24, height: 24 }}
-                  />
-                )}
+              <ListItemButton key={pathname} component={Link} to={pathname.replace(':username', user.username)}>
+                {Icon && <Icon sx={{ minWidth: 0, mr: 3, justifyContent: 'center', width: 24, height: 24 }} />}
                 <ListItemText primary={t(title)} />
               </ListItemButton>
             ))}

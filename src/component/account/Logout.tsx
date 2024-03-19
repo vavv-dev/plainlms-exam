@@ -3,13 +3,13 @@ import { TokenService } from '@/api';
 import { useAtom, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { tokenExpState, processingState, userState } from './account';
+import { tokenExpState, accountProcessingState, userState } from './account';
 
 const Logout = () => {
   const navigate = useNavigate();
 
   const [user, setUser] = useAtom(userState);
-  const setProcessing = useSetAtom(processingState);
+  const setProcessing = useSetAtom(accountProcessingState);
   const setTokenExp = useSetAtom(tokenExpState);
 
   useEffect(() => {

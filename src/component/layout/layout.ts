@@ -3,6 +3,7 @@ import { atomWithStorage } from 'jotai/utils';
 import BaseLayout from './BaseLayout';
 import UserHomeLayout from './UserHomeLayout';
 import { atom } from 'jotai';
+import { User } from '@/api';
 
 /**
  *
@@ -29,3 +30,9 @@ export const alertState = atom<IAlert>({
   message: 'Sucess whatever...',
   severity: 'success',
 });
+
+// not authenticated user but home user you are looking at
+export const homeUserState = atom<User | null>(null);
+
+// portal
+export const stopWatchContainerState = atom<React.RefObject<HTMLDivElement> | null>(null);

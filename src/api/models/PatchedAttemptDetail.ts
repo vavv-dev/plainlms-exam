@@ -2,14 +2,16 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ScoreDetail } from './ScoreDetail';
 export type PatchedAttemptDetail = {
   readonly id?: number;
   readonly link?: string | null;
-  readonly created?: string;
-  readonly modified?: string;
+  readonly score?: ScoreDetail;
   answers?: any;
-  started?: string | null;
-  finished?: string | null;
+  start?: string | null;
+  finish?: string | null;
+  server_start?: string | null;
+  server_finish?: string | null;
   sit?: number;
 };
 

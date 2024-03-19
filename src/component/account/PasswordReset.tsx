@@ -1,35 +1,44 @@
 import { loginPath, reverse } from '@/App';
 import { AccountService } from '@/api';
+import { yupResolver } from '@hookform/resolvers/yup';
 import VpnKeyOutlined from '@mui/icons-material/VpnKeyOutlined';
-import { Alert, Avatar, Box, Button, Container, Typography } from '@mui/material';
-import { Formik, FormikHelpers } from 'formik';
-import { useAtom, useSetAtom } from 'jotai';
+import { Avatar, Box, Button, Container, Typography } from '@mui/material';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import * as yup from 'yup';
-import { FormTextField } from './FormHelper';
-import { processingState } from './account';
 import { alertState } from '../layout/layout';
+import { Form, TextFieldControl as Text } from './FormHelper';
+import { accountProcessingState, userState } from './account';
+
+const schema = yup.object({
+  // follow api field name for form field validation
+  new_password: yup.string().required('This field is required'),
+  new_password2: yup
+    .string()
+    .required('This field is required')
+    .oneOf([yup.ref('new_password')], "Passwords don't match"),
+});
 
 const PasswordReset = () => {
   const { t } = useTranslation('account');
   const navigate = useNavigate();
   const { uid, token } = useParams();
 
-  const [processing, setProcessing] = useAtom(processingState);
+  const user = useAtomValue(userState);
+  const [processing, setProcessing] = useAtom(accountProcessingState);
   const setAlert = useSetAtom(alertState);
 
-  const handleResetPasswordConfirm = (
-    // new_password: field name must be same as api field name
-    { new_password }: { new_password: string },
-    helpers: FormikHelpers<{
-      new_password: string;
-      new_password2: string;
-      detail: string;
-    }>,
-  ) => {
-    setProcessing(true);
+  const { handleSubmit, control, setError, formState } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      new_password: '',
+    },
+  });
 
+  const handleOnSubmit = ({ new_password }: { new_password: string }) => {
+    setProcessing(true);
     AccountService.accountUserResetPasswordConfirmCreate({
       requestBody: {
         uid: uid as string,
@@ -46,18 +55,8 @@ const PasswordReset = () => {
         navigate(reverse(loginPath));
       })
       .catch((error) => {
-        const errorBody = error.body;
-        const genericErrors = [];
-        for (const key in errorBody) {
-          if (key == 'new_password') {
-            helpers.setFieldError(key, t(errorBody[key]));
-          } else {
-            genericErrors.push(t(errorBody[key]));
-          }
-        }
-        // generic error
-        if (genericErrors.length) {
-          helpers.setErrors({ detail: genericErrors.join(' ') });
+        if (error.body) {
+          setError('root.server', error.body);
         }
       })
       .finally(() => {
@@ -80,54 +79,29 @@ const PasswordReset = () => {
           <VpnKeyOutlined />
         </Avatar>
         <Typography component="h1" variant="h5" sx={{ my: '.5em' }}>
-          {t('Complete password reset')}
+          {t('Password reset')}
         </Typography>
 
-        <Formik
-          initialValues={{
-            new_password: '',
-            new_password2: '',
-            detail: '',
-          }}
-          validationSchema={yup.object({
-            new_password: yup.string().required(t('Input your new password.')),
-            new_password2: yup
-              .string()
-              .required(t('This field is required'))
-              .oneOf([yup.ref('new_password')], t("Passwords don't match")),
-          })}
-          onSubmit={handleResetPasswordConfirm}
-        >
-          {(props) => (
-            <form onSubmit={props.handleSubmit}>
-              {props.errors.detail && <Alert severity="warning">{props.errors.detail}</Alert>}
-              <Typography variant="body2" sx={{ my: '1em' }}>
-                {t('Enter your new password.')}
-              </Typography>
+        <Form onSubmit={handleSubmit(handleOnSubmit)} formState={formState} setError={setError} transNs="account">
+          <Typography variant="body2" sx={{ my: '1em' }}>
+            {t('Enter your new password.')}
+          </Typography>
 
-              {/* prettier-ignore */}
-              <FormTextField name="new_password" passwordAorment="showPassword" label="New password" {...props} />
-              {/* prettier-ignore */}
-              <FormTextField name="new_password2" passwordAorment="showPassword2" label="Confirm Password" {...props} />
+          <Text name="new_password" required label={t('New password')} control={control} transNs="account" type="password" />
+          <Text name="new_password2" required label={t('Retype Password')} control={control} transNs="account" type="password" />
 
-              <Button
-                disabled={processing}
-                size="large"
-                sx={{ mt: '2em' }}
-                variant="contained"
-                fullWidth
-                type="submit"
-              >
-                {t('Password reset confirm')}
-              </Button>
-            </form>
-          )}
-        </Formik>
-        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', width: '100%' }}>
-          <Box onClick={() => navigate(reverse(loginPath))} sx={{ cursor: 'pointer' }}>
-            {t('Login now')}
+          <Button disabled={processing} size="large" sx={{ mt: 3 }} variant="contained" fullWidth type="submit">
+            {t('Request password reset')}
+          </Button>
+        </Form>
+
+        {!user && (
+          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <Box onClick={() => navigate(reverse(loginPath))} sx={{ cursor: 'pointer' }}>
+              {t('Login now')}
+            </Box>
           </Box>
-        </Box>
+        )}
       </Box>
     </Container>
   );

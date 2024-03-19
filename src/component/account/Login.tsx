@@ -1,30 +1,35 @@
 import { joinPath, passwordPath, reverse } from '@/App';
-import { TokenObtainPair, TokenService, AccountService } from '@/api';
+import { AccountService, TokenObtainPair, TokenService } from '@/api';
 import { parseJwt } from '@/helper/util';
+import { yupResolver } from '@hookform/resolvers/yup';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { Alert, Button } from '@mui/material';
+import { Button } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import { Formik, FormikHelpers } from 'formik';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
-import { alertState } from '../layout/layout';
-import { FormTextField } from './FormHelper';
-import { tokenExpState, processingState, userState } from './account';
+import { Form, TextFieldControl } from './FormHelper';
+import { accountProcessingState, tokenExpState, userState } from './account';
+
+const schema = yup.object({
+  username: yup.string().required('This field is required'),
+  password: yup.string().required('This field is required'),
+});
 
 const Login = () => {
   const { t } = useTranslation('account');
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [user, setUser] = useAtom(userState);
-  const [processing, setProcessing] = useAtom(processingState);
+  const [processing, setProcessing] = useAtom(accountProcessingState);
   const [tokenExp, setTokenExp] = useAtom(tokenExpState);
-  const [alert, setAlert] = useAtom(alertState);
 
   useEffect(() => {
     if (user) {
@@ -34,27 +39,21 @@ const Login = () => {
         setUser(null);
         setTokenExp(0);
       } else {
-        navigate('/');
+        navigate(location.state?.from ? location.state.from : '/');
         return;
       }
     }
   }, [user, tokenExp]); // eslint-disable-line
 
-  const handleOnSubmit = async (
-    {
-      username,
-      password,
-    }: {
-      username: string;
-      password: string;
+  const { handleSubmit, control, setError, formState } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      username: '',
+      password: '',
     },
-    helpers: FormikHelpers<{
-      username: string;
-      password: string;
-      showPassword: boolean;
-      detail: string;
-    }>,
-  ) => {
+  });
+
+  const handleOnSubmit = async ({ username, password }: { username: string; password: string }) => {
     // start auth processing
     setProcessing(true);
 
@@ -65,17 +64,8 @@ const Login = () => {
         password: password,
       } as TokenObtainPair,
     }).catch((error) => {
-      const errorBody = error.body;
-      const genericErrors = [];
-      for (const key in errorBody) {
-        if (key == 'username' || key == 'password') {
-          helpers.setFieldError(key, t(errorBody[key]));
-        } else {
-          genericErrors.push(t(errorBody[key]));
-        }
-      }
-      if (genericErrors.length) {
-        helpers.setErrors({ detail: genericErrors.join(' ') });
+      if (error.body) {
+        setError('root.server', error.body);
       }
     });
 
@@ -85,23 +75,17 @@ const Login = () => {
       setTokenExp(refreshToken.exp);
 
       // set user
-      AccountService.accountUserMeRetrieve()
+      await AccountService.accountUserMeRetrieve()
         .then((user) => {
           setUser(user);
         })
         .catch((error) => {
-          const errorBody = error.body;
-          const errors = [];
-          for (const key in errorBody) {
-            errors.push(t(errorBody[key]));
-          }
-          if (errors.length) {
-            helpers.setErrors({ detail: errors.join(' ') });
+          if (error.body) {
+            setError('root.server', error.body);
           }
         });
     }
     setProcessing(false);
-    setAlert({ ...alert, open: false });
   };
 
   return (
@@ -122,44 +106,13 @@ const Login = () => {
           {t('Login')}
         </Typography>
 
-        <Formik
-          initialValues={{
-            username: '',
-            password: '',
-            showPassword: false,
-            detail: '',
-          }}
-          validationSchema={yup.object({
-            username: yup.string().required(t('Input your username.')),
-            password: yup.string().required(t('Input your password.')),
-          })}
-          onSubmit={handleOnSubmit}
-        >
-          {(props) => (
-            <form onSubmit={props.handleSubmit}>
-              {props.errors.detail && <Alert severity="warning">{props.errors.detail}</Alert>}
-
-              <FormTextField name="username" label="Username" {...props} />
-              <FormTextField
-                name="password"
-                label="Password"
-                passwordAorment="showPassword"
-                {...props}
-              />
-
-              <Button
-                disabled={processing}
-                size="large"
-                sx={{ mt: '2em' }}
-                variant="contained"
-                fullWidth
-                type="submit"
-              >
-                {t('Login now')}
-              </Button>
-            </form>
-          )}
-        </Formik>
+        <Form onSubmit={handleSubmit(handleOnSubmit)} formState={formState} setError={setError} transNs="account">
+          <TextFieldControl name="username" required label={t('Username')} control={control} transNs="account" />
+          <TextFieldControl name="password" required label={t('Password')} control={control} transNs="account" type="password" />
+          <Button disabled={processing} size="large" sx={{ mt: 3 }} variant="contained" fullWidth type="submit">
+            {t('Login now')}
+          </Button>
+        </Form>
 
         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', width: '100%' }}>
           <Box onClick={() => navigate(reverse(passwordPath))} sx={{ cursor: 'pointer' }}>

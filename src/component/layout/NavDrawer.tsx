@@ -1,3 +1,6 @@
+import { reverse } from '@/App';
+import { userState } from '@/component/account/account';
+import AssignmentIndOutlinedIcon from '@mui/icons-material/AssignmentIndOutlined';
 import CameraOutdoorOutlined from '@mui/icons-material/CameraOutdoorOutlined';
 import FactCheckOutlinedIcon from '@mui/icons-material/FactCheckOutlined';
 import { Toolbar as Spacer, useMediaQuery } from '@mui/material';
@@ -9,7 +12,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import { CSSObject, Theme, styled } from '@mui/material/styles';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -17,20 +20,22 @@ import { navState } from './layout';
 
 const drawerWidth = 200;
 
-// drawer menu items
-const menuItems = [
-  ['home', CameraOutdoorOutlined, '/'],
-  [],
-  // here, add your page component link
-  ['exam', FactCheckOutlinedIcon, '/'],
-];
-
 export default function NavDrawer() {
   const { t } = useTranslation('layout');
   const navigate = useNavigate();
   const matches = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'));
+  const user = useAtomValue(userState);
 
   const [navOpen, setNavOpen] = useAtom(navState);
+
+  // drawer menu items
+  const menuItems = [
+    ['home', CameraOutdoorOutlined, '/'],
+    [],
+    ['exam', FactCheckOutlinedIcon, reverse('examlist')],
+    [],
+    ['me', AssignmentIndOutlinedIcon, reverse('sit', { username: user?.username as string })],
+  ];
 
   useEffect(() => {
     if (matches) {
@@ -45,11 +50,7 @@ export default function NavDrawer() {
         open={matches && (navOpen || false)}
         onClick={() => setNavOpen(false)}
       />
-      <Drawer
-        variant="permanent"
-        open={navOpen}
-        sx={{ position: { xs: 'absolute', lg: 'relative' } }}
-      >
+      <Drawer variant="permanent" open={navOpen} sx={{ position: { xs: 'absolute', lg: 'relative' } }}>
         <Spacer />
         <List>
           {menuItems.map(([key, Icon, path], i) =>
@@ -110,24 +111,22 @@ const closedMixin = (theme: Theme): CSSObject => ({
   },
 });
 
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    ...(open && {
-      ...openedMixin(theme),
-      '& .MuiDrawer-paper': openedMixin(theme),
-    }),
-    ...(!open && {
-      ...closedMixin(theme),
-      '& .MuiDrawer-paper': closedMixin(theme),
-    }),
-    // '>' required not to override the .MuiDrawer-paper accidentally
-    '& > .MuiDrawer-paper': {
-      zIndex: theme.zIndex.appBar - 1,
-      border: 'none',
-    },
+const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
+  boxSizing: 'border-box',
+  ...(open && {
+    ...openedMixin(theme),
+    '& .MuiDrawer-paper': openedMixin(theme),
   }),
-);
+  ...(!open && {
+    ...closedMixin(theme),
+    '& .MuiDrawer-paper': closedMixin(theme),
+  }),
+  // '>' required not to override the .MuiDrawer-paper accidentally
+  '& > .MuiDrawer-paper': {
+    zIndex: theme.zIndex.appBar - 1,
+    border: 'none',
+  },
+}));

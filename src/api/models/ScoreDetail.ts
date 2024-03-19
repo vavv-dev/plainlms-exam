@@ -8,11 +8,12 @@ export type ScoreDetail = {
   readonly created: string;
   readonly modified: string;
   grading?: any;
-  calculated_score?: number;
-  overwrited_score?: number | null;
+  earned_score?: number;
+  possible_score?: number;
   is_copied?: boolean;
   feedback?: string | null;
-  sit: number;
-  graded_by: number;
+  completed?: boolean;
+  attempt: number;
+  graded_by?: number | null;
 };
 

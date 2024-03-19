@@ -1,30 +1,30 @@
 // icons
 import BadgeOutlined from '@mui/icons-material/BadgeOutlined';
+import ContactMailOutlined from '@mui/icons-material/ContactMailOutlined';
 import FactCheckOutlinedIcon from '@mui/icons-material/FactCheckOutlined';
 import HttpsOutlinedIcon from '@mui/icons-material/HttpsOutlined';
 import LogoutOutlined from '@mui/icons-material/LogoutOutlined';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import VpnKeyOutlined from '@mui/icons-material/VpnKeyOutlined';
 
-import { Join, Login, Logout, Password, Privacy, Terms } from '@/component/account/account';
-import { SitDetail, SitList } from '@/component/exam/exam';
+import { Join, Login, Logout, Password, Privacy, Profile, Terms } from '@/component/account/account';
+import { Sit, UserSit } from '@/component/exam/exam';
 import { BaseLayout, UserHomeLayout } from '@/component/layout/layout';
 import '@/config/i18n';
 import { createBrowserRouter } from 'react-router-dom';
-import PasswordReset from './component/account/PasswordReset';
-
+import PasswordReset from '@/component/account/PasswordReset';
+import ExamList from '@/component/exam/ExamList';
 
 // Paths is used for reverse routing
 export const userHomePath = ':username';
-export const sitListPath = 'sit';
-export const sitDetailPath = 'sit/:sitId';
-
+export const profilePath = 'profile';
+export const userSitPath = 'sit';
+export const SitPath = 'sit/:sitId';
 export const loginPath = 'login';
 export const logoutPath = 'logout';
 export const joinPath = 'join';
 export const termsPath = 'terms';
 export const privacyPath = 'privacy';
-
 export const passwordPath = 'password';
 export const passwordResetPath = 'password/:uid/:token';
 
@@ -35,6 +35,7 @@ const routeData = [
     title: 'Home',
     children: [
       // home
+      { path: 'examlist', element: <ExamList />, title: 'Exam List', Icon: FactCheckOutlinedIcon },
 
       // user home
       {
@@ -42,13 +43,13 @@ const routeData = [
         element: <UserHomeLayout />,
         title: 'User Home',
         children: [
-          // user home tabs
-          { path: sitListPath, element: <SitList />, title: 'Sit', Icon: FactCheckOutlinedIcon },
+          { path: userSitPath, element: <UserSit />, title: 'Sit', Icon: FactCheckOutlinedIcon },
+          { path: profilePath, element: <Profile />, title: 'Profile', Icon: ContactMailOutlined },
         ],
       },
 
       // action
-      { path: sitDetailPath, element: <SitDetail />, title: 'Sit Exam' },
+      { path: SitPath, element: <Sit />, title: 'Sit Exam' },
 
       // account
       { path: loginPath, element: <Login />, title: 'Login' },
@@ -56,7 +57,6 @@ const routeData = [
       { path: joinPath, element: <Join />, title: 'Join', Icon: BadgeOutlined },
       { path: termsPath, element: <Terms />, title: 'Terms', Icon: ReceiptLongOutlinedIcon },
       { path: privacyPath, element: <Privacy />, title: 'Privacy', Icon: HttpsOutlinedIcon },
-
       { path: passwordPath, element: <Password />, title: 'Password', Icon: VpnKeyOutlined },
       { path: passwordResetPath, element: <PasswordReset />, title: 'Password Reset', Icon: VpnKeyOutlined },
     ],

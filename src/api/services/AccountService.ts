@@ -135,6 +135,29 @@ export class AccountService {
     });
   }
   /**
+   * @returns User
+   * @throws ApiError
+   */
+  public static accountUserUploadThumbnailPartialUpdate({
+    username,
+    formData,
+  }: {
+    username: string,
+    formData?: {
+      thumbnail?: Blob;
+    },
+  }): CancelablePromise<User> {
+    return __request(OpenAPI, {
+      method: 'PATCH',
+      url: '/api/v1/account/user/{username}/upload_thumbnail/',
+      path: {
+        'username': username,
+      },
+      formData: formData,
+      mediaType: 'multipart/form-data',
+    });
+  }
+  /**
    * @returns Activation
    * @throws ApiError
    */

@@ -8,8 +8,11 @@ export type Sit = {
   user: string;
   exam: string;
   selected_questions: number;
+  attempt: string;
   readonly created: string;
   readonly modified: string;
-  attempt_allow?: number;
+  due?: string;
+  consent?: string | null;
+  verification?: string | null;
 };
 

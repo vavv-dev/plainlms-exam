@@ -19,6 +19,7 @@
   "{{ name }}, sucessfully joined. Please login.": "{{ name }}님, 가입이 완료되었습니다. 로그인을 진행해 주세요.",
   "Passwords don't match": "비밀번호가 일치하지 않습니다",
   "Confirm Password": "비밀번호 확인",
+  "Retype Password": "비밀번호 확인",
   "agree to Terms of Service": "이용약관에 동의",
   "agree to Privacy Policy": "개인정보 보호정책에 동의",
   "View content": "내용 보기",
@@ -31,8 +32,11 @@
   "Password reset confirm": "비밀번호 변경 하기",
   "New password": "새 비밀번호",
   "Enter your new password.": "새로운 비밀번호를 입력해주세요",
-  "Complete password reset": "비밀번호 변경 완료",
   "Input your new password.": "새로운 비밀번호를 입력해주세요",
   "Sucessfully password changed. You can login with new password.": "비밀번호 변경이 완료되었습니다. 새로운 비밀번호로 로그인을 진행해 주세요.",
-  "Invalid token for given user." : "유효하지 않은 토큰입니다."
+  "Invalid token for given user.": "유효하지 않은 토큰입니다.",
+  "Short description": "간략한 설명",
+  "Save profile information": "프로필 정보 저장",
+  "Profile information has been updated.": "프로필 정보가 업데이트 되었습니다.",
+  "Change password": "비밀번호 변경 하기"
 }

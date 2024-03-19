@@ -164,6 +164,31 @@ export class ExamService {
     });
   }
   /**
+   * A viewset for viewing and editing attempt instances.
+   * @returns AttemptDetail
+   * @throws ApiError
+   */
+  public static examAttemptFinishPartialUpdate({
+    id,
+    requestBody,
+  }: {
+    /**
+     * A unique integer value identifying this attempt.
+     */
+    id: number,
+    requestBody?: PatchedAttemptDetail,
+  }): CancelablePromise<AttemptDetail> {
+    return __request(OpenAPI, {
+      method: 'PATCH',
+      url: '/api/v1/exam/attempt/{id}/finish/',
+      path: {
+        'id': id,
+      },
+      body: requestBody,
+      mediaType: 'application/json',
+    });
+  }
+  /**
    * A viewset for viewing and editing exam instances.
    * @returns PaginatedExamDetailList
    * @throws ApiError
